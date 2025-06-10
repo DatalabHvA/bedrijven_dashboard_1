@@ -5,7 +5,7 @@ import plotly.express as px
 from datetime import timedelta
 
 # Page configuration
-st.set_page_config(page_title="Two-Page Dashboard", layout="wide")
+st.set_page_config(page_title="Energie dashboard", layout="wide")
 
 # Navigation menu
 st.sidebar.title("Navigation")
@@ -13,15 +13,11 @@ page = st.sidebar.radio("Go to", ["Page 1: Info & Tables", "Page 2: Interactive 
 
 #terrein_keuze = st.sidebar.radio("Selecteer terrein", ["Sloterdijk Poort Noord", "Dutch Fresh Port"])
 
-verbruik_etruck = 1.2
+verbruik_etruck = 1.26
 verbruik_ebakwagen = 0.9
 verbruik_ebestel = 0.4
 
-#if terrein_keuze == "Sloterdijk Poort Noord":
-#    df = pd.read_excel('data_template Sloterdijk Poort Noord.xlsx').dropna(subset = 'bedrijfsnaam')
-#elif terrein_keuze == "Dutch Fresh Port":
-#    df = pd.read_excel('data_template DFP V2.xlsx').dropna(subset = 'bedrijfsnaam')
-df = pd.read_excel('dfp_master.xlsx').dropna(subset = 'bedrijfsnaam')
+df = pd.read_excel('data_template.xlsx').dropna(subset = 'bedrijfsnaam')
 
 df['etrucks_2025'] = df['etrucks']
 df['etrucks_2030'] = (df['etrucks'] + df['etrucks_uitbreiding_2030'] + (0.16*df['fossiel trucks']))
@@ -49,7 +45,7 @@ df['ebestel_2030_verbruik'] = df['ebestel_2030'] * df['jaarkilometrage_bestel'] 
 df['ebestel_2035_verbruik'] = df['ebestel_2035'] * df['jaarkilometrage_bestel'] * verbruik_ebestel
 df['ebestel_2050_verbruik'] = df['ebestel_2050'] * df['jaarkilometrage_bestel'] * verbruik_ebestel
 
-profielen = pd.read_excel('profielen_RWS_v2.xlsx')
+profielen = pd.read_excel('profielen_CTS.xlsx')
 profielen['datetime'] = pd.to_datetime(profielen['datetime'])
 profielen.set_index('datetime', inplace = True)
 
@@ -65,7 +61,7 @@ verbruik_cat1 = df.groupby('categorie1')['jaarverbruik pand'].sum()
 
 # Page 1: Text, Images, and Tables
 if page == "Page 1: Info & Tables":
-    st.title("Welkom op het dashboard van Dutch Fresh Port")
+    st.title("Welkom op het dashboard van CTS group - vestiging STP")
     
 	#kolommen maken voor pagina
     cols = st.columns(4)
@@ -89,7 +85,7 @@ if page == "Page 1: Info & Tables":
     icon_bedrijf = "https://raw.githubusercontent.com/isamuu/dashboard/main/Icons%20dashboard/db%20bedrijf.jpg"
     aantal_bedrijf = len(df['bedrijfsnaam'].unique())
     icon_bedrijf_html = f'''<img src="{icon_bedrijf}" width="150" style="display: block; margin: auto;">
-    <p style="text-align: center; font-size: 24px;">{aantal_bedrijf} Bedrijven</p>'''
+    <p style="text-align: center; font-size: 24px;">{aantal_bedrijf} Bedrijf</p>'''
  
  # Display content in the first column
     cols[0].markdown(icon_bedrijf_html, unsafe_allow_html=True)
@@ -100,7 +96,7 @@ if page == "Page 1: Info & Tables":
     st.header('Dataset')
     st.write("Hieronder staat de dataset achter het dashboard. Deze is verzameld door studenten logistiek en waar nodig aangevuld met sectorspecifieke getallen van het CBS.")
 
-    st.write((df[['bedrijfsnaam','categorie1','categorie2','fossiel trucks', 'fossiel bakwagens','fossiel bestelbussen','etrucks','ebakwagens','ebestel','jaarverbruik pand']].
+    st.write((df[['bedrijfsnaam','categorie1','categorie2','fossiel trucks', 'fossiel bakwagens','fossiel bestelbussen','etrucks','ebakwagens','ebestel','jaarverbruik pand', 'jaarkilometrage_truck','jaarkilometrage_bakwagen','jaarkilometrage_bestel']].
               rename(columns = {'categorie1' : 'hoofdcategorie', 'categorie2' : 'subcategorie','jaarverbruik pand' : 'jaarverbruik pand (kWh)'}).
               assign(**{'jaarverbruik pand (kWh)' : lambda d: d['jaarverbruik pand (kWh)'].astype(int)})))
 	
@@ -195,9 +191,9 @@ elif page == "Page 2: Interactive Graph":
     year = cols2[2].radio("Selecteer jaar", [2025, 2030, 2035, 2050])
 	
     if smart == "Normaal":
-        drop_cols = ['trucks_smart','bakwagens_smart','bestel_smart']
+        drop_cols = ['trucks_smart']
     elif smart == "Smart charging":
-        drop_cols = ['trucks','bakwagens','bestel']
+        drop_cols = ['trucks']
 
     laden_profielen = df.groupby('laadprofiel')[['etrucks_2025_verbruik','etrucks_2030_verbruik','etrucks_2035_verbruik','etrucks_2050_verbruik','ebakwagens_2025_verbruik','ebakwagens_2030_verbruik','ebakwagens_2035_verbruik','ebakwagens_2050_verbruik','ebestel_2025_verbruik','ebestel_2030_verbruik','ebestel_2035_verbruik','ebestel_2050_verbruik']].sum().reset_index().melt(id_vars='laadprofiel',var_name = 'bron_jaar_verbruik',value_name = 'energie')
     laden_profielen['bron'] = (laden_profielen['bron_jaar_verbruik'].apply(lambda x: x.split('_')[0]))
@@ -214,18 +210,11 @@ elif page == "Page 2: Interactive Graph":
         return pd.concat(bijdrages, axis = 1).sum(axis = 1)
 
     verbruik_uur_mobiliteit = pd.DataFrame({'trucks' : generate_profile(laden_profielen, year, 'etrucks'),
-                                      'trucks_smart' : generate_profile(laden_profielen_smart, year, 'etrucks'),
-                                      'bakwagens' : generate_profile(laden_profielen, year, 'ebakwagens'),
-                                      'bakwagens_smart' : generate_profile(laden_profielen_smart, year, 'ebakwagens'),
-                                      'bestel' : generate_profile(laden_profielen, year, 'ebestel'),
-                                      'bestel_smart' : generate_profile(laden_profielen, year, 'ebestel')},
+                                      'trucks_smart' : generate_profile(laden_profielen_smart, year, 'etrucks')},
                                       index = profielen.index)
     # Resolution selection
 	
-    verbruik_uur_panden = pd.DataFrame({'INDUSTRIE pand' : profielen['INDUSTRIE']*verbruik_cat1['INDUSTRIE'],
-                                    'KANTOOR_ONDERWIJS pand' : profielen['KANTOOR_ONDERWIJS']*verbruik_cat1['KANTOOR/ONDERWIJS'],
-                                    'LOGISTIEK pand' : profielen['LOGISTIEK']*verbruik_cat1['LOGISTIEK'],
-                                    'OVERIG pand' : profielen['OVERIG']*verbruik_cat1['OVERIG']},
+    verbruik_uur_panden = pd.DataFrame({'LOGISTIEK pand' : profielen['LOGISTIEK']*verbruik_cat1['LOGISTIEK']},
                                     index = profielen.index)
     #verbruik_uur_panden = verbruik_15min_panden.resample('1h').sum()
     verbruik_uur_totaal = pd.concat([verbruik_uur_panden, verbruik_uur_mobiliteit], axis=1)	
