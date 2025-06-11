@@ -44,7 +44,7 @@ df['ebestel_2030_verbruik'] = df['ebestel_2030'] * df['jaarkilometrage_bestel'] 
 df['ebestel_2035_verbruik'] = df['ebestel_2035'] * df['jaarkilometrage_bestel'] * verbruik_ebestel
 df['ebestel_2050_verbruik'] = df['ebestel_2050'] * df['jaarkilometrage_bestel'] * verbruik_ebestel
 
-profielen = pd.read_excel('profielen_CTS.xlsx')
+profielen = pd.read_excel('profielen.xlsx')
 profielen['datetime'] = pd.to_datetime(profielen['datetime'])
 profielen.set_index('datetime', inplace = True)
 
@@ -60,7 +60,7 @@ verbruik_cat1 = df.groupby('categorie1')['jaarverbruik pand'].sum()
 
 # Page 1: Text, Images, and Tables
 if page == "Page 1: Info & Tables":
-    st.header("Welkom op het dashboard van CTS group - vestiging STP")
+    st.header("Welkom op het Energiedashboard voor jouw bedrijf")
     
 	#kolommen maken voor pagina
     cols = st.columns(4)
