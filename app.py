@@ -18,19 +18,20 @@ verbruik_ebakwagen = 0.9
 verbruik_ebestel = 0.4
 
 df = pd.read_excel('data_template.xlsx').dropna(subset = 'bedrijfsnaam')
+ingroei = pd.read_excel('ingroei.xlsx').set_index('type')
 
 df['etrucks_2025'] = df['etrucks']
-df['etrucks_2030'] = (df['etrucks'] + df['etrucks_uitbreiding_2030'] + (0.16*df['fossiel trucks']))
-df['etrucks_2035'] = (df['etrucks'] + df['etrucks_uitbreiding_2030'] + df['etrucks_uitbreiding_2035']+ (0.42*df['fossiel trucks']))
-df['etrucks_2050'] = (df['etrucks'] + df['etrucks_uitbreiding_2030'] + df['etrucks_uitbreiding_2035']+ df['etrucks_uitbreiding_2040']+ (0.75*df['fossiel trucks']))
+df['etrucks_2030'] = (df['etrucks'] + df['etrucks_uitbreiding_2030'] + int(ingroei.loc['truck',2030]*df['fossiel trucks']))
+df['etrucks_2035'] = (df['etrucks'] + df['etrucks_uitbreiding_2030'] + df['etrucks_uitbreiding_2035']+ int(ingroei.loc['truck',2035]*df['fossiel trucks']))
+df['etrucks_2050'] = (df['etrucks'] + df['etrucks_uitbreiding_2030'] + df['etrucks_uitbreiding_2035']+ df['etrucks_uitbreiding_2040']+ int(ingroei.loc['truck',2050]*df['fossiel trucks']))
 df['ebakwagens_2025'] = df['ebakwagens']
-df['ebakwagens_2030'] = (df['ebakwagens'] + df['ebakwagens_uitbreiding_2030'] + (0.16*df['fossiel bakwagens']))
-df['ebakwagens_2035'] = (df['ebakwagens'] + df['ebakwagens_uitbreiding_2030'] + df['ebakwagens_uitbreiding_2035']+ (0.42*df['fossiel bakwagens']))
-df['ebakwagens_2050'] = (df['ebakwagens'] + df['ebakwagens_uitbreiding_2030'] + df['ebakwagens_uitbreiding_2035']+ df['ebakwagens_uitbreiding_2040']+ (0.75*df['fossiel bakwagens']))
+df['ebakwagens_2030'] = (df['ebakwagens'] + df['ebakwagens_uitbreiding_2030'] + int(ingroei.loc['bakwagen',2030]*df['fossiel bakwagens']))
+df['ebakwagens_2035'] = (df['ebakwagens'] + df['ebakwagens_uitbreiding_2030'] + df['ebakwagens_uitbreiding_2035']+ int(ingroei.loc['bakwagen',2035]*df['fossiel bakwagens']))
+df['ebakwagens_2050'] = (df['ebakwagens'] + df['ebakwagens_uitbreiding_2030'] + df['ebakwagens_uitbreiding_2035']+ df['ebakwagens_uitbreiding_2040']+ int(ingroei.loc['bakwagen',2050]*df['fossiel bakwagens']))
 df['ebestel_2025'] = df['ebestel']
-df['ebestel_2030'] = (df['ebestel'] + df['ebestelbussen_uitbreiding_2030'] + (0.20*df['fossiel bestelbussen']))
-df['ebestel_2035'] = (df['ebestel'] + df['ebestelbussen_uitbreiding_2030'] + df['ebestelbussen_uitbreiding_2035']+ (0.50*df['fossiel bestelbussen']))
-df['ebestel_2050'] = (df['ebestel'] + df['ebestelbussen_uitbreiding_2030'] + df['ebestelbussen_uitbreiding_2035']+ df['ebestelbussen_uitbreiding_2040']+ (1*df['fossiel bestelbussen']))
+df['ebestel_2030'] = (df['ebestel'] + df['ebestelbussen_uitbreiding_2030'] + int(ingroei.loc['bestelbus',2030]*df['fossiel bestelbussen']))
+df['ebestel_2035'] = (df['ebestel'] + df['ebestelbussen_uitbreiding_2030'] + df['ebestelbussen_uitbreiding_2035']+ int(ingroei.loc['bestelbus',2035]*df['fossiel bestelbussen']))
+df['ebestel_2050'] = (df['ebestel'] + df['ebestelbussen_uitbreiding_2030'] + df['ebestelbussen_uitbreiding_2035']+ df['ebestelbussen_uitbreiding_2040']+ int(ingroei.loc['bestelbus',2050]*df['fossiel bestelbussen']))
 
 df['etrucks_2025_verbruik'] = df['etrucks'] * df['jaarkilometrage_truck'] * verbruik_etruck
 df['etrucks_2030_verbruik'] = df['etrucks_2030'] * df['jaarkilometrage_truck'] * verbruik_etruck
@@ -138,17 +139,17 @@ elif page == "Page 2: Interactive Graph":
 	
     df_values = pd.DataFrame({'Jaar' : [2025,2030,2035,2050],
         'Aantal fossiele trucks' : [df['fossiel trucks'].sum(), 
-                                    int(df['fossiel trucks'].sum() - int(0.16*df['fossiel trucks'].sum())), 
-                                    int(df['fossiel trucks'].sum() - int(0.42*df['fossiel trucks'].sum())), 
-                                    int(df['fossiel trucks'].sum() - int(0.75*df['fossiel trucks'].sum()))],
+                                    int(df['fossiel trucks'].sum() - int(ingroei.loc['truck',2030]*df['fossiel trucks'].sum())), 
+                                    int(df['fossiel trucks'].sum() - int(ingroei.loc['truck',2035]*df['fossiel trucks'].sum())), 
+                                    int(df['fossiel trucks'].sum() - int(ingroei.loc['truck',2050]*df['fossiel trucks'].sum()))],
         'Aantal fossiele bakwagens' : [df['fossiel bakwagens'].sum(),
-                                       int(df['fossiel bakwagens'].sum() - int(0.16*df['fossiel bakwagens'].sum())),
-                                       int(df['fossiel bakwagens'].sum() - int(0.42*df['fossiel bakwagens'].sum())),
-                                       int(df['fossiel bakwagens'].sum() - (0.75*df['fossiel bakwagens'].sum()))],
+                                       int(df['fossiel bakwagens'].sum() - int(ingroei.loc['bakwagen',2030]*df['fossiel bakwagens'].sum())),
+                                       int(df['fossiel bakwagens'].sum() - int(ingroei.loc['bakwagen',2035]*df['fossiel bakwagens'].sum())),
+                                       int(df['fossiel bakwagens'].sum() - int(ingroei.loc['bakwagen',2050]*df['fossiel bakwagens'].sum()))],
         'Aantal fossiele bestelwagens' : [df['fossiel bestelbussen'].sum(),
-                                          int(df['fossiel bestelbussen'].sum() - int(0.20*df['fossiel bestelbussen'].sum())),
-                                          int(df['fossiel bestelbussen'].sum() - int(0.50*df['fossiel bestelbussen'].sum())),
-                                          int(df['fossiel bestelbussen'].sum() - (1.0*df['fossiel bestelbussen'].sum()))],
+                                          int(df['fossiel bestelbussen'].sum() - int(ingroei.loc['bestelbus',2030]*df['fossiel bestelbussen'].sum())),
+                                          int(df['fossiel bestelbussen'].sum() - int(ingroei.loc['bestelbus',2035]*df['fossiel bestelbussen'].sum())),
+                                          int(df['fossiel bestelbussen'].sum() - int(ingroei.loc['bestelbus',2050]*df['fossiel bestelbussen'].sum()))],
         'Aantal e-trucks' : [df['etrucks'].sum(), 
                              int(df['etrucks_2030'].sum()), 
                              int(df['etrucks_2035'].sum()), 
@@ -191,9 +192,9 @@ elif page == "Page 2: Interactive Graph":
     year = cols2[2].radio("Selecteer jaar", [2025, 2030, 2035, 2050])
 	
     if smart == "Normaal":
-        drop_cols = ['trucks_smart']
+        drop_cols = ['trucks_smart','bakwagens_smart']
     elif smart == "Smart charging":
-        drop_cols = ['trucks']
+        drop_cols = ['trucks','bakwagens']
 
     laden_profielen = df.groupby('laadprofiel')[['etrucks_2025_verbruik','etrucks_2030_verbruik','etrucks_2035_verbruik','etrucks_2050_verbruik','ebakwagens_2025_verbruik','ebakwagens_2030_verbruik','ebakwagens_2035_verbruik','ebakwagens_2050_verbruik','ebestel_2025_verbruik','ebestel_2030_verbruik','ebestel_2035_verbruik','ebestel_2050_verbruik']].sum().reset_index().melt(id_vars='laadprofiel',var_name = 'bron_jaar_verbruik',value_name = 'energie')
     laden_profielen['bron'] = (laden_profielen['bron_jaar_verbruik'].apply(lambda x: x.split('_')[0]))
@@ -210,7 +211,9 @@ elif page == "Page 2: Interactive Graph":
         return pd.concat(bijdrages, axis = 1).sum(axis = 1)
 
     verbruik_uur_mobiliteit = pd.DataFrame({'trucks' : generate_profile(laden_profielen, year, 'etrucks'),
-                                      'trucks_smart' : generate_profile(laden_profielen_smart, year, 'etrucks')},
+                                      'trucks_smart' : generate_profile(laden_profielen_smart, year, 'etrucks'),
+                                      'bakwagens' : generate_profile(laden_profielen, year, 'ebakwagens'),
+                                      'bakwagens_smart' : generate_profile(laden_profielen_smart, year, 'ebakwagens')},
                                       index = profielen.index)
     # Resolution selection
 	
