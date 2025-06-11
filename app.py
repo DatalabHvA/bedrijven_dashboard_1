@@ -11,8 +11,6 @@ st.set_page_config(page_title="Energie dashboard", layout="wide")
 st.sidebar.title("Navigation")
 page = st.sidebar.radio("Go to", ["Page 1: Info & Tables", "Page 2: Interactive Graph"])
 
-#terrein_keuze = st.sidebar.radio("Selecteer terrein", ["Sloterdijk Poort Noord", "Dutch Fresh Port"])
-
 verbruik_etruck = 1.26
 verbruik_ebakwagen = 0.9
 verbruik_ebestel = 0.4
@@ -62,7 +60,7 @@ verbruik_cat1 = df.groupby('categorie1')['jaarverbruik pand'].sum()
 
 # Page 1: Text, Images, and Tables
 if page == "Page 1: Info & Tables":
-    st.title("Welkom op het dashboard van CTS group - vestiging STP")
+    st.header("Welkom op het dashboard van CTS group - vestiging STP")
     
 	#kolommen maken voor pagina
     cols = st.columns(4)
@@ -135,7 +133,7 @@ if page == "Page 1: Info & Tables":
 
 # Page 2: Interactive Stacked Area Graph
 elif page == "Page 2: Interactive Graph":
-    st.title("Inzicht in de bronnen en piekmomenten van de elektriciteitsvraag")
+    st.header("Inzicht in de bronnen en piekmomenten van de elektriciteitsvraag")
 	
     df_values = pd.DataFrame({'Jaar' : [2025,2030,2035,2050],
         'Aantal fossiele trucks' : [df['fossiel trucks'].sum(), 
